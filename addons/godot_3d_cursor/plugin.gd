@@ -244,6 +244,15 @@ func _on_node_added(node: Node) -> void:
 		return
 	if node.is_in_group(CURSOR_COMPONENT_GROUP):
 		return
+	# Only move the top node of what was added into the edited scene. An
+	# instanced scene's own children enter the tree right after its root, and
+	# snapping each of them to the cursor too collapses the scene onto one
+	# point. Nodes added outside the edited scene, such as another plugin's
+	# previews, are left alone.
+	var parent := node.get_parent()
+	var edited_root := EditorInterface.get_edited_scene_root()
+	if parent != edited_root and (parent == null or parent.owner != edited_root):
+		return
 	# Apply the position of the new node to the 3D Cursors position if the
 	# 3D cursor is available, the node is not the 3D cursor itself, the node
 	# is no descendant of the 3D Cursor and the node inherits [Node3D]
